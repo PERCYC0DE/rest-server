@@ -7,16 +7,53 @@ const {
   createUser,
   deleteUser,
 } = require("../controllers/user.controller");
+const {
+  isRoleValid,
+  isExistsEmail,
+  existsUserForID,
+} = require("../helpers/dbValidators");
+const { validateFields } = require("../middlewares/validateFields");
 
 const router = Router();
 
 router.get("/", getUsers);
 router.post(
   "/",
-  [check("email", "El email no es valido`").isEmail],
+  [
+    // Can be move this section into custom middleware?
+    check("name", "El nombre es obligatorio").not().isEmpty(),
+    check("password", "El password es obligatorio y debe tener mas de 6 letras")
+      .isLength({ min: 6 })
+      .not()
+      .isEmpty(),
+    check("email", "El email no es valido").isEmail(),
+    check("email").custom(isExistsEmail),
+    // check("role", "No es un rol permitido").isIn(["ADMIN_ROLE", "USER_ROLE"]),
+    check("role").custom(isRoleValid),
+    validateFields,
+  ],
   createUser
 );
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+
+router.put(
+  "/:id",
+  [
+    check("id", "No es un id válido").isMongoId(),
+    check("id").custom(existsUserForID),
+    check("role").custom(isRoleValid),
+    validateFields,
+  ],
+  updateUser
+);
+
+router.delete(
+  "/:id",
+  [
+    check("id", "No es un id válido").isMongoId(),
+    check("id").custom(existsUserForID),
+    validateFields,
+  ],
+  deleteUser
+);
 
 module.exports = router;
