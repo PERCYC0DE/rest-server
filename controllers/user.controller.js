@@ -1,28 +1,22 @@
 const { response } = require("express");
 const bcryptjs = require("bcryptjs");
-const User = require("../models/user.js");
+const { UserModel } = require("../models/");
 
 const getUsers = async (req, res = response) => {
   const { limit = 5, from = 0 } = req.query;
-  // const users = await User.find({ status: true })
-  //   .skip(Number(from))
-  //   .limit(Number(limit));
-  // const totalUsers = await User.countDocuments({ status: true });
   const [total, users] = await Promise.all([
-    User.countDocuments({ status: true }),
-    User.find({ status: true }).skip(Number(from)).limit(Number(limit)),
+    UserModel.countDocuments({ status: true }),
+    UserModel.find({ status: true }).skip(Number(from)).limit(Number(limit)),
   ]);
   res.json({
     total,
     users,
-    // totalUsers,
-    // users,
   });
 };
 
 const createUser = async (req, res = response) => {
   const { name, email, password, role } = req.body;
-  const user = new User({
+  const user = new UserModel({
     name,
     email,
     password,
@@ -35,7 +29,7 @@ const createUser = async (req, res = response) => {
 
   // Save data
   await user.save();
-  res.json(user);
+  res.status(201).json(user);
 };
 
 const updateUser = async (req, res = response) => {
@@ -48,7 +42,7 @@ const updateUser = async (req, res = response) => {
     data.password = bcryptjs.hashSync(password, salt);
   }
 
-  const user = await User.findByIdAndUpdate(id, data);
+  const user = await UserModel.findByIdAndUpdate(id, data);
 
   res.json({
     message: "User updated successfully",
@@ -58,9 +52,7 @@ const updateUser = async (req, res = response) => {
 
 const deleteUser = async (req, res = response) => {
   const { id } = req.params;
-
-  const user = await User.findByIdAndUpdate(id, { status: false });
-
+  const user = await UserModel.findByIdAndUpdate(id, { status: false });
   res.json(user);
 };
 
