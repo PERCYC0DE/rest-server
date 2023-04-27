@@ -38,7 +38,7 @@ const createCategory = async (req, res = response) => {
   // Create data to save
   const data = {
     name,
-    user: req.usuario._id,
+    user: req.user._id,
   };
 
   const category = await new CategoryModel(data);
@@ -52,7 +52,7 @@ const updateCategory = async (req, res = response) => {
   const { status, user, ...data } = req.body;
 
   data.name = data.name.toUpperCase();
-  data.user = req.usuario._id;
+  data.user = req.user._id;
 
   const category = await CategoryModel.findByIdAndUpdate(id, data, {
     new: true,

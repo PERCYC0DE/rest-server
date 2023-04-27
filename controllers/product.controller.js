@@ -2,7 +2,7 @@ const { response } = require("express");
 const { ProductModel } = require("../models");
 
 const getAllProducts = async (req, res = response) => {
-  const { limit = 5, from = 0 } = req.params;
+  const { limit = 10, from = 0 } = req.params;
   const query = { status: true };
 
   const [total, products] = await Promise.all([
@@ -32,7 +32,7 @@ const createProduct = async (req, res = response) => {
   const { status, user, ...body } = req.body;
 
   const productDB = await ProductModel.findOne({ name: body.name });
-
+  // TODO: Show message when the product exists
   if (productDB) {
     return res.status(400).json({
       message: `El producto ${productDB.name} ya existe.`,
@@ -43,7 +43,7 @@ const createProduct = async (req, res = response) => {
   const data = {
     ...body,
     name: body.name.toUpperCase(),
-    user: req.usuario._id,
+    user: req.user._id,
   };
 
   const product = await new ProductModel(data);
