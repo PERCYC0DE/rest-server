@@ -36,10 +36,22 @@ const existsProduct = async (id) => {
   }
 };
 
+// Function to validate allowed collections
+const collectionsAllowed = (collection = "", collections = []) => {
+  const isIncluded = collections.includes(collection);
+  if (!isIncluded) {
+    throw new Error(
+      `La colección ${collection} no es permitida - ${collections}`
+    );
+  }
+  return true;
+};
+
 module.exports = {
   isRoleValid,
   isExistsEmail,
   existsUserForID,
   existsCategory,
   existsProduct,
+  collectionsAllowed,
 };
